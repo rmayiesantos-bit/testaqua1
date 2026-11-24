@@ -48,7 +48,7 @@ button.tab.on{background:var(--teal);border-color:var(--teal);color:var(--on)}
 .mc-t{display:flex;flex-direction:column;min-width:0}
 .mc-t b{font-weight:600;overflow-wrap:anywhere}
 .mc-t .mut{font-size:13px}
-.mc-d{margin:0;color:var(--mut);font-size:14px}
+.mc-d{margin:0;color:var(--mut);font-size:14px}.mc-x summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:14px;list-style:none;padding:2px 0}.mc-x summary::-webkit-details-marker{display:none}.mc-x summary::after{content:' ▾'}.mc-x[open] summary::after{content:' ▴'}.mc-x .mc-d{margin-top:6px}
 .mc-f{margin-top:auto;display:flex;flex-direction:column;gap:4px}
 .mc-f .mut{font-size:13px;text-align:center}
 button.buy{width:100%}
@@ -135,12 +135,12 @@ function Game(cv,d,ro){
  pop=(x,y,s)=>fx.push({x,y,s,a:1.3}),
  mh=f=>[4,8,14][f.s]*(1+(d.df||0)*.25+PE.df),
  gain=(v,x,y)=>{d.coins+=v;pop(x,y,'+'+v);chg()};
- const g={ro,bt(s){BT=s},px:pop,bu(x,y,col,n){for(let i=0;i<n;i++){const a=R(0,6.28),v=R(60,260);pt.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:R(.4,.9),c:col,r:R(2,6)})}},
+ const g={ro,cv,fish:()=>F,bt(s){BT=s},px:pop,bu(x,y,col,n){for(let i=0;i<n;i++){const a=R(0,6.28),v=R(60,260);pt.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:R(.4,.9),c:col,r:R(2,6)})}},
   sync(dd){d=dd;const a=d.fish||[];while(F.length<a.length)F.push(mk(a[F.length]));F.length=Math.min(F.length,a.length);F.forEach((f,i)=>{f.k=a[i].k||0;f.s=a[i].s||0;f.e=a[i].e||0})},
   sv(){d.fish=F.map(f=>({k:f.k,s:f.s,e:f.e}))},
   add(k){const f=mk({k});f.y=80;F.push(f);g.sv()},
   del(i){if(F.length>1){F.splice(i,1);g.sv()}},
-  stop(){run=0},info(){return{n:AL.length,t:Math.ceil(wT)}},
+  stop(){run=0;if(window.__aqg===g)window.__aqg=null},info(){return{n:AL.length,t:Math.ceil(wT)}},
   use(k){if(k=='bm'){if(!(d.bm>0))return;if(!AL.length){toast('No aliens to bomb right now.');return}d.bm--;AL.slice().forEach(a=>hit(a,8+(d.cp||0)*2));pop(W/2,H/2,'💥 BOMB!')}else if(k=='hl'){if(!(d.hl>0))return;d.hl--;F.forEach(f=>f.hp=mh(f));pop(W/2,H/2,'💊 Healed!')}chg()}};
  cv.onpointerdown=ev=>{if(ro)return;const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*W/r.width,y=(ev.clientY-r.top)*H/r.height,ci=cn.findIndex(k=>Math.hypot(k.x-x,k.y-y)<24);
   if(ci>=0){const k=cn.splice(ci,1)[0];gain(k.v,k.x,k.y);return}
@@ -155,7 +155,7 @@ const TY=[{n:'Minion',hp:5,g:1,sp:55,sz:26,rw:12,dm:2,col:'#6fcf4f'},{n:'Brute',
    if(!ro)f.h-=dt*(1-Math.min(.8,pe.hs))/40;
    if(!ro&&f.h<.9&&fd.length){let b=1e9;fd.forEach(p=>{const q=Math.hypot(p.x-f.x,p.y-f.y);if(q<b){b=q;tg=p}})}
    if(tg){const dx=tg.x-f.x,dy=tg.y-f.y,q=Math.hypot(dx,dy)||1;f.vx+=(dx/q*110-f.vx)*dt*3;f.vy+=(dy/q*110-f.vy)*dt*3;
-    if(q<r+6){fd.splice(fd.indexOf(tg),1);const o=f.s;f.h=1;f.e+=1+d.fl+pe.gr;f.s=st(f.e);if(f.s>o)pop(f.x,f.y-30,'⬆️ Grew!');g.sv();chg()}}
+    if(q<r+6){fd.splice(fd.indexOf(tg),1);const o=f.s;f.h=1;f.e+=1+d.fl+pe.gr;f.s=st(f.e);if(f.s>o){pop(f.x,f.y-30,'⬆️ Grew!');try{window.__dhFish&&window.__dhFish('grew',f)}catch(e){}}g.sv();chg()}}
    else{if(Math.random()<dt*.5)f.ty=R(90,H-110);f.vy+=((f.ty-f.y)*.6-f.vy)*dt*2;const sg=f.vx<0?-1:1;f.vx+=(sg*(f.h<.4?25:50)-f.vx)*dt}
    if(f.x<40)f.vx=Math.abs(f.vx)||40;if(f.x>W-40)f.vx=-(Math.abs(f.vx)||40);
    f.x+=f.vx*dt;f.y=Math.min(FL-20,Math.max(60,f.y+f.vy*dt));
@@ -283,7 +283,7 @@ const TY=[{n:'Minion',hp:5,g:1,sp:55,sz:26,rw:12,dm:2,col:'#6fcf4f'},{n:'Brute',
    c.fillStyle='#0006';c.fillRect(a.x-25,a.y-a.sz-18,50,6);c.fillStyle='#ff4d4d';c.fillRect(a.x-25,a.y-a.sz-18,50*Math.max(0,a.hp)/a.mx,6);if(a.t==2){c.font='bold 12px Fredoka,sans-serif';c.fillStyle='#fff';c.fillText('BOSS',a.x,a.y-a.sz-22)}});
   c.font='bold 18px Fredoka,sans-serif';c.lineWidth=3;c.strokeStyle='#0a4f80';fx.forEach(f=>{c.globalAlpha=Math.min(1,f.a);c.strokeText(f.s,f.x,f.y);c.fillStyle='#fff';c.fillText(f.s,f.x,f.y)});c.globalAlpha=1;
   if(ro==1){c.font='bold 16px Fredoka,sans-serif';c.fillStyle='rgba(0,0,0,.35)';c.fillRect(W-130,10,120,28);c.fillStyle='#fff';c.fillText('👀 View only',W-70,30)}}
- const tick=n=>{if(!run)return;const dt=Math.min(.05,(n-L)/1000);L=n;t+=dt;up(dt);dr();requestAnimationFrame(tick)};requestAnimationFrame(tick);return g}
+ const tick=n=>{if(!run)return;const dt=Math.min(.05,(n-L)/1000);L=n;t+=dt;up(dt);dr();requestAnimationFrame(tick)};window.__aqg=g;requestAnimationFrame(tick);return g}
 /* ---------- screens ---------- */
 function pk(d){const o={cb:(d.bl||0)*.1,hs:(d.nu||0)*.1,gr:0,col:0,atk:0,df:0};(d.items||[]).forEach(id=>{const x=GI.find(y=>y[0]==id);if(x){o.cb+=x[5];o.hs+=x[6];o.gr+=x[7];o.col|=x[8];o.df+=x[9]||0;o.atk+=x[10]||0}});return o}
 const nm=x=>`<span class="t${x[3]}">${x[2]} ${x[1]}</span>`,tc=(k,t)=>k==6?`hsl(${(t*80)%360},100%,65%)`:TCOL[k];
@@ -335,17 +335,18 @@ function market(){if(!me){go('land');return}ar='';
 function mkTabs(){const bc=[['fish','Fish'],['sup','Supplies'],['bat','Battle gear'],['arena','⚔️ Arena gear'],['look','Looks']],sc=[['fish',`My fish (${me.fish.length})`],['items',`Special items (${(me.items||[]).length})`]];
  $('#mkm').innerHTML=[['buy','Buy'],['sell','Sell']].map(([m,l])=>`<button class="tab${mk.mode==m?' on':''}" data-mk="${m}" aria-pressed="${mk.mode==m}">${l}</button>`).join('');
  $('#mkc').innerHTML=(mk.mode=='buy'?bc:sc).map(([c,l])=>`<button class="tab${mk.cat==c?' on':''}" data-mk="${mk.mode}:${c}" aria-pressed="${mk.cat==c}">${l}</button>`).join('')}
+function mkTier(list,bc,grid){const g={};list.forEach(o=>{const r=FX[+o.id.slice(1)][0];(g[r]=g[r]||[]).push(o)});return Object.keys(g).sort((a,b)=>a-b).map(r=>{const a=g[r],lo=Math.min(...a.map(o=>o.lock||0));return`<h3 class="mh" style="color:${RAR[r][1]}">${RAR[r][0]} fish <span class="mut">· ${lo?'unlocks from '+lo+' ⭐':'available from the start'} · ${a.length} species${+r>=3?' · 🏆 grind tier':''}</span></h3>`+grid(a.map(bc))}).join('')}
 function mkBody(){const m=$('#mkb');if(!m||!me)return;
  const a=document.activeElement,fk=a&&m.contains(a)&&a.dataset&&Object.keys(a.dataset)[0],fvv=fk?a.dataset[fk]:'',co=me.coins,st=me.score,n=me.fish.length,
  grid=l=>`<div class="mg">${l.join('')}</div>`,intro=t=>`<p class="mut mi">${t}</p>`,
- mc=o=>`<div class="mc"><div class="mc-h"><span class="tile" style="${o.ts||''}" aria-hidden="true">${o.ic}</span><div class="mc-t"><b>${o.name}</b>${o.sub?`<span class="mut">${o.sub}</span>`:''}</div></div>${o.desc?`<p class="mc-d">${o.desc}</p>`:''}<div class="mc-f">${o.btn}${o.note?`<span class="mut">${o.note}</span>`:''}</div></div>`,
+ mc=o=>`<div class="mc"><div class="mc-h"><span class="tile" style="${o.ts||''}" aria-hidden="true">${o.ic}</span><div class="mc-t"><b>${o.name}</b>${o.sub?`<span class="mut">${o.sub}</span>`:''}</div></div>${o.desc?(o.desc.length>44?`<details class="mc-x"><summary>View details</summary><p class="mc-d">${o.desc}</p></details>`:`<p class="mc-d">${o.desc}</p>`):''}<div class="mc-f">${o.btn}${o.note?`<span class="mut">${o.note}</span>`:''}</div></div>`,
  bc=o=>{let b,note='';if(o.done)b=`<button class="buy" disabled>✓ ${o.doneTxt}</button>`;else if(o.lock&&st<o.lock)b=`<button class="buy" disabled>🔒 Needs ${o.lock} ⭐</button>`;else if(!o.can)b=`<button class="buy" disabled>${o.why}</button>`;else{b=`<button class="buy" data-buy="${o.id}" ${co>=o.price?'':'disabled'}>${o.price} 🪙</button>`;if(co<o.price)note=`${o.price-co} more coins to go`}return mc({...o,btn:b,note})},
  lc=o=>{const key=o.k+':'+o.v,pr=o.q*15,own=(me.own||[]).includes(key);return mc({ic:o.ic,ts:o.ts,name:o.name,sub:'',btn:own?'<button class="buy" disabled>✓ Owned</button>':st<o.q?`<button class="buy" disabled>🔒 Needs ${o.q} ⭐</button>`:`<button class="buy" data-lb="${esc(key)}" ${co>=pr?'':'disabled'}>${pr} 🪙</button>`,note:!own&&st>=o.q&&co<pr?`${pr-co} more coins to go`:''})},
  sell=(sure,label,attr,dis)=>`<button class="buy ${sure?'on':'ghost'}" ${attr} ${dis?'disabled':''}>${sure?'Sure? '+label:label}</button>`;
  $('#mkw').innerHTML=`<span class="wc" title="Coins">🪙 <b>${co}</b></span><span class="wc" title="Stars">⭐ <b>${st}</b></span>`;
  let h='';
  if(mk.mode=='buy'){const C=catalog();
-  if(mk.cat=='fish')h=intro(`Bigger fish pay more coins and hit harder. Your tank holds up to 12 fish (${n} now). New species unlock as you earn ⭐ stars.`)+grid(C.fish.map(bc));
+  if(mk.cat=='fish')h=intro(`Bigger fish pay more coins and hit harder. Your tank holds up to 12 fish (${n} now). New species unlock as you earn ⭐ stars.`)+mkTier(C.fish,bc,grid);
   else if(mk.cat=='sup')h=intro('Keep your fish fed and your coins flowing.')+grid(C.sup.map(bc));
   else if(mk.cat=='arena')h=arenaShop();else if(mk.cat=='bat')h=intro('Gear for alien waves. Use bombs and heal potions from the Play screen.')+grid(C.bat.map(bc));
   else h=intro('A new look is equipped right away. You can switch any time in Customize. Locked looks open as you earn ⭐ stars.')+looks().map(([t,l])=>`<h3 class="mh">${t}</h3>`+grid(l.map(lc))).join('')}
@@ -994,21 +995,25 @@ sp.addEventListener('input',e=>{A.mute=I('a-mute').checked;A.m=+I('a-m').value;A
 #dhb{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:10;width:44px;height:44px;padding:0;font-size:22px}
 #dhp{position:fixed;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:10;width:min(310px,calc(100vw - 24px));max-height:72vh;overflow:auto;margin:0}
 #dhp .r{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}#dhp .sw{width:28px;height:28px;padding:0;border:3px solid var(--line)}#dhp .sw.on{border-color:var(--acc)}
+#dhr{position:fixed;left:0;top:0;width:54px;height:54px;margin:-27px 0 0 -27px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(10,79,128,.6),0 0 14px rgba(255,255,255,.7);z-index:7;pointer-events:none;animation:drg 1.1s ease-in-out infinite}@keyframes drg{50%{transform:scale(1.18);opacity:.65}}
+#dhc{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:10;width:min(360px,calc(100vw - 84px));margin:0;gap:6px;padding:8px}#dhc:not([hidden]){display:flex}#dhc input,#dhp input[type=text]{flex:1;min-width:0;font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
 #dhp .ag{display:flex;flex-wrap:wrap;gap:6px}#dhp .ag button{padding:5px 11px;font-size:14px}
-@media (prefers-reduced-motion:reduce){#dh .prop{animation:none}#dh .bub{transition:none}}
+#dh .dd{position:absolute;bottom:34px;width:9px;height:9px;border-radius:50%;background:rgba(150,140,125,.7);pointer-events:none;animation:ddu .65s ease-out forwards}
+@keyframes ddu{to{transform:translate(var(--dx),var(--dy)) scale(2);opacity:0}}
+@media (prefers-reduced-motion:reduce){#dh .prop,#dh .dd,#dhr{animation:none}#dh .bub{transition:none}}
 </style>
 <script>
 (()=>{'use strict';
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,R=a=>a[Math.random()*a.length|0],PI=Math.PI,sin=Math.sin,cos=Math.cos,ab=Math.abs,hold=(t,d)=>Math.max(0,Math.min(1,t*7,(d-t)*4));
 const deck=a=>{let d=[];return()=>{if(!d.length)d=a.map((_,i)=>i).sort(()=>Math.random()-.5);return a[d.pop()]}};
-const SK=['#f2c9a5','#e0ac80','#bd8455','#8a5634','#5a3825'],HC=['#2a1a10','#6b3f1d','#c9962f','#a8402a','#3a3f4a'],SH=['#c9382b','#0e7c86','#d9a21b','#5f55c4','#2f8f5f','#dcdcdc'],HS=['Short','Long','Bun','Curly'],AC=['None','Cap','Glasses','Bandana'];
-let S={g:'f',h:1,hc:0,sk:1,sh:1,ac:0,hide:0};try{Object.assign(S,JSON.parse(localStorage.getItem('dh')||'{}'))}catch(e){}
+const SK=['#f2c9a5','#e0ac80','#bd8455','#8a5634','#5a3825'],HC=['#2a1a10','#6b3f1d','#c9962f','#a8402a','#3a3f4a'],SH=['#c9382b','#0e7c86','#d9a21b','#5f55c4','#2f8f5f','#dcdcdc'],HS=['Short','Long','Bun','Curly','Ponytail','Buzz cut','Pompadour'],AC=['None','Cap','Glasses','Bandana'],EC=['#1b1410','#3b6fb0','#2f8f5f','#7a5230','#7e8a95'],PC=['#2b3a4f','#3b3b3b','#6a5a3a','#7b2d2d','#2d5a4a'],FH=['None','Stubble','Beard'];
+let S={g:'f',h:1,hc:0,sk:1,sh:1,ac:0,ey:0,pc:0,fh:0,hide:0};try{Object.assign(S,JSON.parse(localStorage.getItem('dh')||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem('dh',JSON.stringify(S))}catch(e){}};
 const boot=()=>{const T=THREE,el=document.createElement('div');el.id='dh';el.innerHTML='<canvas></canvas><div class="bub" role="status"></div><span class="prop"></span>';document.body.appendChild(el);
 const cv=el.querySelector('canvas'),B=el.querySelector('.bub'),PR=el.querySelector('.prop');
-const ren=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});ren.setPixelRatio(Math.min(2,devicePixelRatio||1));ren.setSize(140,240,false);ren.outputEncoding=T.sRGBEncoding;
+const ren=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});ren.setPixelRatio(Math.max(2,Math.min(3,devicePixelRatio||1)));ren.setSize(140,240,false);ren.outputEncoding=T.sRGBEncoding;
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(28,140/240,.1,30);cam.position.set(0,.95,5.6);cam.lookAt(0,.95,0);
-sc.add(new T.HemisphereLight(0xdcecff,0x6b5a40,.95));const dl=new T.DirectionalLight(0xfff0d8,.85);dl.position.set(2,3.5,3.5);sc.add(dl);
+sc.add(new T.HemisphereLight(0xdcecff,0x6b5a40,.95));const dl=new T.DirectionalLight(0xfff0d8,.85);dl.position.set(2,3.5,3.5);sc.add(dl);const rl=new T.DirectionalLight(0xbfe0ff,.45);rl.position.set(-3,2,-3);sc.add(rl);
 const sh=document.createElement('canvas');sh.width=sh.height=64;{const c=sh.getContext('2d'),g=c.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.45)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,64,64)}
 const blob=new T.Mesh(new T.PlaneGeometry(.9,.9),new T.MeshBasicMaterial({map:new T.CanvasTexture(sh),transparent:true,depthWrite:false}));blob.rotation.x=-PI/2;blob.position.y=.004;sc.add(blob);
 let rt,J,face,props,hitMeshes;
@@ -1019,29 +1024,31 @@ const sph=(r,c,part,sx=1,sy=1,sz=1)=>{const m=mk(new T.SphereGeometry(r,20,14),c
 const box=(w,h,d,c,part)=>mk(new T.BoxGeometry(w,h,d),c,part);
 const grp=(p,x,y,z)=>{const g=new T.Group();g.position.set(x,y,z);p.add(g);return g};
 function build(){if(rt){sc.remove(rt);rt.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()})}
- hitMeshes=[];J={};face={};const k=SK[S.sk],f=S.g=='f',shc=SH[S.sh],hc=HC[S.hc],pa='#2b3a4f',sho='#2a2420',hs=S.h;rt=new T.Group();sc.add(rt);
+ hitMeshes=[];J={};face={};const k=SK[S.sk],f=S.g=='f',shc=SH[S.sh],hc=HC[S.hc],pa=PC[S.pc],sho='#2a2420',hs=S.h;rt=new T.Group();sc.add(rt);
  [['l',1],['r',-1]].forEach(([s,d])=>{const H=grp(rt,d*(f?.095:.09),.95,0),K=grp(H,0,-.46,0);H.add(cyl(f?.082:.078,.06,.46,pa,'leg'+s));K.add(cyl(.06,.045,.44,pa,'leg'+s));const ft=box(.09,.06,.21,sho,'foot'+s);ft.position.set(0,-.43,.05);K.add(ft);J[s+'H']=H;J[s+'K']=K});
- const pel=sph(.17,pa,'torso',f?1.2:1,.65,.72);pel.position.set(0,.97,0);rt.add(pel);
- const SP=grp(rt,0,.95,0);J.sp=SP;const tor=cyl(f?.15:.175,f?.155:.145,.56,shc,'torso',1);tor.scale.z=.62;SP.add(tor);
+ const pel=sph(.17,pa,'torso',f?1.32:1,.65,.72);pel.position.set(0,.97,0);rt.add(pel);
+ const SP=grp(rt,0,.95,0);J.sp=SP;const tor=cyl(f?.143:.185,f?.128:.15,.56,shc,'torso',1);tor.scale.z=.62;SP.add(tor);
  const belt=cyl(.152,.152,.05,'#5a3d22','torso',1);belt.scale.z=.64;belt.position.y=.02;SP.add(belt);
- {const nk=cyl(.045,.05,.1,k,'head',1);nk.position.y=.54;SP.add(nk)}
- [['l',1],['r',-1]].forEach(([s,d])=>{const S1=grp(SP,d*(f?.19:.215),.5,0),E=grp(S1,0,-.3,0);S1.add(sph(.058,shc,'arm'+s));S1.add(cyl(.052,.046,.3,shc,'arm'+s));E.add(cyl(.045,.036,.28,k,'arm'+s));const h=sph(.042,k,'hand'+s);h.position.y=-.3;E.add(h);J[s+'S']=S1;J[s+'E']=E});
- const HD=grp(SP,0,.62,0);J.hd=HD;const hd=sph(.115,k,'head',1,1.12,1.05);hd.position.y=.1;HD.add(hd);
- [1,-1].forEach(d=>{const e=sph(.02,k,'head');e.position.set(d*.115,.1,0);HD.add(e);const g=grp(HD,d*.046,.12,.108);g.add(sph(.022,'#f6f6f2','eye'+(d>0?'l':'r'),1,1,.9));const p=sph(.011,'#1b1410','eye'+(d>0?'l':'r'));p.position.z=.017;g.add(p);face['e'+d]=g;const b=box(.042,.008,.008,hc,'head');b.position.set(d*.046,.16,.112);HD.add(b);face['b'+d]=b});
- const nz=sph(.019,k,'nose',1,1.1,1.1);nz.position.set(0,.086,.124);HD.add(nz);
+ {const nk=cyl(f?.037:.053,f?.041:.059,.1,k,'head',1);nk.position.y=.54;SP.add(nk)}
+ [['l',1],['r',-1]].forEach(([s,d])=>{const S1=grp(SP,d*(f?.178:.238),.5,0),E=grp(S1,0,-.3,0);S1.add(sph(.058,shc,'arm'+s));S1.add(cyl(.052,.046,.3,shc,'arm'+s));E.add(cyl(.045,.036,.28,k,'arm'+s));const h=sph(.042,k,'hand'+s);h.position.y=-.3;E.add(h);J[s+'S']=S1;J[s+'E']=E});
+ const HD=grp(SP,0,.62,0);J.hd=HD;const hd=f?sph(.11,k,'head',.95,1.13,1.03):sph(.117,k,'head',1.05,1.07,1.06);hd.position.y=.1;HD.add(hd);if(!f){const jw=sph(.082,k,'head',1.12,.78,.9);jw.position.set(0,.035,.02);HD.add(jw)}face.by=f?.17:.152;
+ [1,-1].forEach(d=>{const e=sph(.02,k,'head');e.position.set(d*.115,.1,0);HD.add(e);const g=grp(HD,d*.046,.12,.108);g.add(sph(f?.024:.02,'#f6f6f2','eye'+(d>0?'l':'r'),1,1,.9));if(f){const ls=box(.036,.005,.008,'#15110d','head');ls.position.set(d*.046,.145,.118);ls.rotation.z=d*-.18;HD.add(ls)}const p=sph(f?.0125:.011,EC[S.ey],'eye'+(d>0?'l':'r'));p.position.z=.017;g.add(p);face['e'+d]=g;const b=f?box(.046,.006,.008,hc,'head'):box(.05,.013,.01,hc,'head');b.position.set(d*.046,face.by,.112);HD.add(b);face['b'+d]=b});
+ const nz=f?sph(.014,k,'nose',1,1.1,1.1):sph(.021,k,'nose',1.1,1.2,1.2);nz.position.set(0,.086,.124);HD.add(nz);
  const lip=f?'#a8424a':'#74332f';face.ml=box(.05,.008,.008,lip,'mouth');face.ms=mk(new T.TorusGeometry(.022,.004,6,14,PI),lip,'mouth');face.ms.rotation.z=PI;face.mf=mk(new T.TorusGeometry(.02,.004,6,14,PI),lip,'mouth');face.mo=sph(.015,'#5a1a1a','mouth',1,1.2,.6);
  [[face.ml,.052],[face.ms,.066],[face.mf,.044],[face.mo,.05]].forEach(([m,y])=>{m.position.set(0,y,.112);HD.add(m)});
- const cap=new T.SphereGeometry(.123,24,14,0,PI*2,0,PI*.5),hm=hair=>{const m=mk(cap,hc,'hair',.9);m.scale.set(1,1.12,1.08);m.position.y=.1;m.rotation.x=-.5;return m};
+ const cap=new T.SphereGeometry(.123,24,14,0,PI*2,0,PI*.5),hm=hair=>{const m=mk(cap,hc,'hair',.9);m.scale.set(1,hs==5?1.09:1.12,hs==5?1.06:1.08);m.position.y=.1;m.rotation.x=-.5;return m};
  if(S.ac!=1){HD.add(hm());if(hs==1){const l=cyl(.115,.085,.4,hc,'hair');l.position.set(0,.09,-.07);l.scale.z=.8;HD.add(l)}
   if(hs==2){const b=sph(.055,hc,'hair');b.position.set(0,.25,-.05);HD.add(b)}
+  if(hs==4){const t=cyl(.042,.022,.36,hc,'hair');t.position.set(0,.2,-.11);t.rotation.x=.55;HD.add(t);const tie=sph(.03,'#c9382b','hair');tie.position.set(0,.2,-.115);HD.add(tie)}if(hs==6){const q=box(.13,.055,.12,hc,'hair');q.position.set(0,.245,.03);q.rotation.x=-.25;HD.add(q)}
   if(hs==3)for(let i=0;i<9;i++){const a=i/9*PI*2,c=sph(.052,hc,'hair');c.position.set(sin(a)*.1,.2+(i%2)*.03,cos(a)*.09-.02);HD.add(c)}}
  if(S.ac==1){const c=mk(cap,shc,'head');c.scale.set(1.04,1.05,1.1);c.position.y=.12;c.rotation.x=-.12;HD.add(c);const br=box(.15,.012,.1,shc,'head');br.position.set(0,.2,.13);HD.add(br);if(hs==1){const l=cyl(.1,.08,.36,hc,'hair');l.position.set(0,.07,-.08);HD.add(l)}}
+ if(!f&&S.fh){const bd=new T.SphereGeometry(.121,22,12,0,PI*2,PI*(S.fh==2?.66:.52),PI*(S.fh==2?.34:.48)),m=mk(bd,hc,'head',.95);m.scale.set(1.06,1.1,1.07);m.position.y=.1;m.material.transparent=true;m.material.opacity=S.fh==2?.97:.32;HD.add(m)}
  if(S.ac==2)[1,-1].forEach(d=>{const g=mk(new T.TorusGeometry(.031,.004,8,18),'#15110d','head');g.position.set(d*.046,.12,.12);HD.add(g)});
  if(S.ac==3){const bn=mk(new T.TorusGeometry(.118,.013,8,24),'#c9382b','head');bn.rotation.x=PI/2;bn.position.y=.19;HD.add(bn)}
  const rod=new T.Group();const rg=new T.CylinderGeometry(.006,.011,1.3,8);rg.translate(0,-.8,0);const rm=new T.Mesh(rg,mat('#6a4a2a'));rod.add(rm);const bob=sph(.02,'#d93f30','x');bob.position.set(0,-1.45,.0);rod.add(bob);hitMeshes.pop();rod.rotation.x=-.5;rod.visible=false;J.rE.add(rod);
- const sn=box(.07,.04,.04,'#e8c27a','x');hitMeshes.pop();sn.position.set(0,-.33,.03);sn.visible=false;J.rE.add(sn);props={rod,sn}}
-const EM={ok:['line',1,[0,0,0]],happy:['smile',1,[.02,.02,0]],grumpy:['frown',.85,[.35,-.35,0]],ouch:['o',.15,[-.3,.3,0]],sleep:['line',.08,[0,0,0]],smug:['smile',.85,[.0,.0,.04]],wow:['o',1.3,[.03,.03,.02]]};
-let fc='';const setFace=n=>{if(n==fc)return;fc=n;const e=EM[n]||EM.ok;face.ml.visible=e[0]=='line';face.ms.visible=e[0]=='smile';face.mf.visible=e[0]=='frown';face.mo.visible=e[0]=='o';face.fs=e[1];face.b1.rotation.z=e[2][0];face.b1.position.y=.16+(e[2][2]||0)+(n=='happy'?.012:0);face['b-1'].rotation.z=-(e[2][1]<0?e[2][1]:e[2][0]);face['b-1'].position.y=.16+(n=='happy'?.012:0)};
+ const sn=box(.07,.04,.04,'#e8c27a','x');hitMeshes.pop();sn.position.set(0,-.33,.03);sn.visible=false;J.rE.add(sn);props={rod,sn,tip:bob}}
+const EM={ok:['line',1,[0,0,0]],happy:['smile',1,[.02,.02,0]],grumpy:['frown',.85,[.35,-.35,0]],ouch:['o',.15,[-.3,.3,0]],sleep:['line',.08,[0,0,0]],smug:['smile',.85,[.0,.0,.04]],wow:['o',1.3,[.03,.03,.02]],sad:['frown',.9,[-.35,0,.01]],shy:['smile',.75,[-.2,0,0]],curious:['line',1.15,[0,0,.022]],bored:['line',.5,[0,0,0]],angry:['frown',.8,[.4,0,0]]};
+let fc='';const setFace=n=>{if(n==fc)return;fc=n;const e=EM[n]||EM.ok,y=face.by;face.ml.visible=e[0]=='line';face.ms.visible=e[0]=='smile';face.mf.visible=e[0]=='frown';face.mo.visible=e[0]=='o';face.fs=e[1];face.b1.rotation.z=e[2][0];face.b1.position.y=y+(e[2][2]||0)+(n=='happy'?.012:0);face['b-1'].rotation.z=-(e[2][1]<0?e[2][1]:e[2][0]);face['b-1'].position.y=y+(n=='happy'?.012:0)};
 /* ---- actions ---- */
 const SIT={oy:-.8,lH:[-1.45,0,.12],rH:[-1.45,0,-.12],lK:[.15,0,0],rK:[.15,0,0]};
 const ACT={
@@ -1063,6 +1070,27 @@ const ACT={
  spin:{l:'Spin',d:[2.2,3],f:'happy',ln:['Wheeee!','Look at me go! I’m a fish-spinner!'],p:t=>({yaw:t*7,lS:[0,0,1.35],rS:[0,0,-1.35],oy:.03})},
  bow:{l:'Take a bow',d:[2.5,3.5],f:'happy',ln:['Thank you, thank you! I’ll be here all week.','For my next trick: catching absolutely nothing.'],p:t=>({sp:[.95*Math.min(1,t*2.5),0,0],hd:[.2,0,0],lS:[.5,0,.3],rS:[.5,0,-.3]})}
 };
+
+/* fish-visit actions: he walks to a fish, points, reacts. Not listed in the menu. */
+const FPT=(t,c)=>{const s=c.sd||0,a=s>=0?'l':'r',z=(s>=0?1:-1)*(2.3-.5*ab(s)),P={sp:[.04,s*.1,0],hd:[-.3,s*.55,0]};P[a+'S']=[0,0,z];P[a+'E']=[-.15+sin(t*3)*.08,0,0];return P};
+ACT.fwatch={l:'Watch a fish',nop:1,d:[5,7],f:'happy',sp_:'🐟',ln:[],p:FPT};
+ACT.fhungry={l:'Hungry fish',nop:1,d:[5,6.5],f:'ouch',sp_:'🍴',ln:[],p:(t,c)=>{const s=c.sd||0;return{sp:[.12,0,0],hd:[.2+sin(t*4)*.05,sin(t*2.5)*.35+s*.2,0],lS:[-.7,0,.2],lE:[-1.6,0,0],rS:[-.7,0,-.2],rE:[-1.6,0,0],lK:[.1,0,0],rK:[.1,0,0]}}};
+ACT.fcheer={l:'Cheer for a fish',nop:1,d:[4,5.5],f:'happy',sp_:'🎉',ln:[],p:(t,c)=>{const s=c.sd||0,u=ab(sin(t*6));return{oy:u*.07,hd:[-.2,s*.4,0],lS:[0,0,2.4+sin(t*6)*.3],rS:[0,0,-2.4-sin(t*6+PI)*.3],lE:[-.3,0,0],rE:[-.3,0,0],lK:[u*.4,0,0],rK:[u*.4,0,0]}}};
+ACT.fbaby={l:'Coo at a baby fish',nop:1,d:[4,5.5],f:'happy',sp_:'💗',ln:[],p:(t,c)=>{const s=c.sd||0;return{sp:[.3,0,0],hd:[.25,s*.4+sin(t*2)*.1,0],lS:[-.9,0,.15],lE:[-1.3,0,0],rS:[-.9,0,-.15],rE:[-1.3,0,0],oy:ab(sin(t*3))*.02}}};
+
+/* companion acts (not in the menu) */
+const ARMX=(a,b)=>({lS:[-a,0,-b],lE:[-2.3,0,0],rS:[-a,0,b],rE:[-2.3,0,0]});
+ACT.stare={nop:1,d:[3.5,4.5],f:'ok',look:'cam',ln:[],p:t=>({})};
+ACT.lean={nop:1,d:[3,4],f:'curious',look:'cam',ln:[],p:t=>({sp:[.4,0,0],hd:[.1,0,0],rS:[-1.2,0,-.2],rE:[-2.3,0,0]})};
+ACT.knock={nop:1,d:[3.2,3.8],f:'curious',look:'cam',ln:[],p:t=>({sp:[.25,0,0],rS:[-1.5,0,-.1],rE:[-.5+sin(t*13)*.5,0,0],lS:[0,0,.08]})};
+ACT.sus={nop:1,d:[4,5],f:'smug',look:'cur',ln:[],p:t=>({sp:[.08,0,0],hd:[.05,0,.12],...ARMX(.9,.5)})};
+ACT.mad={nop:1,d:[3,4],f:'angry',look:'cam',ln:[],p:t=>({oy:ab(sin(t*9))*.015,sp:[.1,0,0],...ARMX(.9,.5)})};
+ACT.shock={nop:1,d:[2.4,3],f:'wow',look:'cam',ln:[],p:t=>({sp:[-.3,0,0],hd:[-.25,0,0],...HF(1)})};
+ACT.jumpx={nop:1,d:[2.5,3.2],f:'happy',look:'cam',ln:[],p:t=>{const u=ab(sin(t*7));return{oy:u*.12,lS:[0,0,2.5],rS:[0,0,-2.5],lK:[u*.5,0,0],rK:[u*.5,0,0]}}};
+ACT.shy={nop:1,d:[3,4],f:'shy',ln:[],p:t=>({hd:[.3,.35,.1],lS:[-1.7,0,.2],lE:[-2.4,0,0],rS:[-1.7,0,-.2],rE:[-2.4,0,0],sp:[.1,0,0]})};
+ACT.sad={nop:1,d:[3.5,4.5],f:'sad',ln:[],p:t=>({sp:[.3,0,0],hd:[.5,0,0]})};
+ACT.laugh={nop:1,d:[2.5,3.5],f:'happy',ln:[],p:t=>({oy:ab(sin(t*10))*.03,sp:[-.15+sin(t*14)*.05,0,0],hd:[-.3,0,0],lS:[-.7,0,.2],lE:[-1.5,0,0],rS:[-.7,0,-.2],rE:[-1.5,0,0]})};
+ACT.turn={l:'Turn',nop:1,d:[1.7,1.7],f:'happy',ln:[],p:t=>({yaw:t/1.7*PI*2,lS:[0,0,.35],rS:[0,0,-.35]})};
 for(const k in ACT){ACT[k].sp=ACT[k].sp_}
 /* ---- tap reactions, chosen by the exact body part hit ---- */
 const RL={head:['Ow! My head!','Hey, that’s where my brain lives!','Stars… I see stars. And fish.','Not the noggin! It’s my best feature!'],eye:['My EYE! I need those!','Aaah! Eye! Eye! I only have two!','Poke my eye again and I’ll poke yours… with a rod.'],nose:['Not the nose! HONK.','Ow! You booped the schnoz!','That’s my smelling-fish organ!'],mouth:['Mmph! Thop pokhing my mouth!','Careful! That’s my sandwich hole!','Bleh! I taste finger!'],hair:['Careful! It took an hour to look this messy!','My hair! That’s professional fish-handler hair!','Don’t ruin the hair. It’s all I have going for me.'],belly:['Oof! Right in the lunch!','Ugh… my sandwich… it’s coming back…','Right in the gut! I had breakfast, you know!'],chest:['Oof! You knocked the wind out of me!','Hey! Ribs are not buttons!','Whoa! Easy, I’m made of fragile fisherman parts!'],back:['Ow, my back! I’m too old for this!','Aaah! You found the bad vertebra!','Don’t poke the spine! It’s holding everything together!'],arm:['Ow! My arm! That’s my casting arm!','Hey! Don’t touch the biceps, they’re insured!','My arm! I need that to lie about fish sizes!'],hand:['Ow ow ow, my fingers!','Not the hands! I need them for knots!','Ahh! Hand! Hand! Hand!'],leg:['My leg! I use that for walking!','Ow! Knee-jerk reaction… literally!','You hit my leg! It was my favorite one!'],foot:['My TOE! My pinky toe!','Ow! Foot! Why the foot?!','Hopping! I’m hopping! Because of you!']},
@@ -1082,43 +1110,87 @@ const RP={
 };
 RP.foot=RP.leg;
 /* ---- state ---- */
-const tmp=new T.Vector3();let x=60,mode='idle',tx=0,cur=null,idleEnd=2e3,lastK='',sulk=0,hits=[],lastLine=0,lastIn=Date.now(),bt,AX=null,ph=0,yaw=0,kx=0,flash=null,ft=0,zz={},blinkT=0;
-const maxX=()=>Math.max(8,innerWidth-140-60),put=()=>{el.style.transform=`translateX(${x}px)`};
+const tmp=new T.Vector3();let x=60,mode='idle',tx=0,cur=null,idleEnd=2e3,lastK='',sulk=0,hits=[],lastLine=0,lastIn=Date.now(),bt,AX=null,ph=0,yaw=0,kx=0,flash=null,ft=0,zz={},blinkT=0,yy=0,vyy=0,vx=0,drag=0,fall=0,pend=null,px=0,py=0,sq=0,afterW=null,dazed=0;
+const maxX=()=>Math.max(8,innerWidth-140-60),put=()=>{el.style.transform=`translate(${x}px,${-yy+eoy}px) scale(${zs})`};
 const blip=(f,force)=>{try{if(!AX&&!force)return;AX=AX||new(window.AudioContext||window.webkitAudioContext)();const t=AX.currentTime,o=AX.createOscillator(),g=AX.createGain();o.type='triangle';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.5,t+.09);g.gain.setValueAtTime(.04,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);o.connect(g);g.connect(AX.destination);o.start(t);o.stop(t+.13)}catch(e){}};
-const say=(t,ms=3800,force)=>{if(S.hide)return;B.textContent=t;const bw=B.offsetWidth,c=Math.max(bw/2+6,Math.min(innerWidth-bw/2-6,x+70));B.style.left=(c-x)+'px';B.classList.add('on');clearTimeout(bt);bt=setTimeout(()=>B.classList.remove('on'),ms);lastLine=Date.now();blip(S.g=='f'?460:300,force)};
+const say=(t,ms=3800,force)=>{if(S.hide)return;B.textContent=t;const bw=B.offsetWidth,c=Math.max(bw/2+6,Math.min(innerWidth-bw/2-6,x+70));B.style.left=(c-x)+'px';B.classList.add('on');clearTimeout(bt);bt=setTimeout(()=>B.classList.remove('on'),ms);lastLine=Date.now();blip(S.g=='f'?460:300,force);speak(t)};
 const startAct=(k,line)=>{const d=ACT[k],n=performance.now();cur={d,k,t0:n,end:n+(d.d[0]+Math.random()*(d.d[1]-d.d[0]))*1e3,fx:(d.fx||[]).map(a=>[...a,0])};mode='act';lastK=k;PR.textContent=d.sp||'';if(d.ln.length&&(line||Math.random()<.75))say(R(d.ln))};
-const W8=Object.keys(ACT),pick=()=>{let k;do k=R(W8);while(k==lastK||(k=='nap'&&Math.random()<.5));return k};
-const decide=n=>{if(sulk)return;if(Math.random()<.38){mode='walk';tx=Math.random()*maxX();if(ab(tx-x)<120)tx=x<maxX()/2?Math.min(maxX(),x+220):Math.max(8,x-220)}else startAct(pick())};
+const W8=Object.keys(ACT).filter(k=>!ACT[k].nop),pick=()=>{let k;do k=R(W8);while(k==lastK||(k=='nap'&&Math.random()<.5));return k};
+const decide=n=>{if(sulk||CS.pause)return;if(Math.random()<.4&&visitFish(null,'idle'))return;if(Math.random()<.38){mode='walk';tx=Math.random()*maxX();if(ab(tx-x)<120)tx=x<maxX()/2?Math.min(maxX(),x+220):Math.max(8,x-220)}else startAct(pick())};
 const endAct=n=>{cur=null;mode='idle';PR.textContent='';idleEnd=n+800+Math.random()*1800};
 /* ---- tapping: pixel-accurate raycast against the actual 3D body ---- */
 const rc=new T.Raycaster(),mv=new T.Vector2();let hitT=0;
 const classify=h=>{const o=h.object,p=o.userData.part,l=o.worldToLocal(h.point.clone()),sd=p=='hair'?(l.x>=0?1:-1):/l$/.test(p)?1:/r$/.test(p)?-1:(l.x>=0?1:-1);
  if(p=='torso')return{k:l.z<0?'back':l.y<.22?'belly':'chest',s:sd};const m=p=='hair'?'hair':p.replace(/[lr]$/,'');return{k:{eye:'eye',nose:'nose',mouth:'mouth',hair:'hair',head:'head',arm:'arm',hand:'hand',leg:'leg',foot:'foot'}[m]||'head',s:sd}};
-const react=(c,wx)=>{const n=performance.now(),sg=wx>=0?1:-1;hits=hits.filter(t=>n-t<8000);hits.push(n);lastIn=Date.now();blip(S.g=='f'?460:300,1);
+const react=(c,wx)=>{afterW=null;const n=performance.now(),sg=wx>=0?1:-1;hits=hits.filter(t=>n-t<8000);hits.push(n);lastIn=Date.now();blip(S.g=='f'?460:300,1);
  if(sulk){say('…',1200);return}
  if(hits.length>=5){hits=[];sulk=1;mode='act';cur={d:{d:[6,6],yaw:PI,f:'grumpy',p:t=>({hd:[.3,0,0],sp:[.15,0,0],lS:[-.9,0,-.45],lE:[-2.1,0,0],rS:[-.9,0,.45],rE:[-2.1,0,0]})},t0:n,end:n+6500,fx:[[6,'Fine. I forgive you. Barely.']].map(a=>[...a,0])};PR.textContent='💢';say('That’s it. I’m not talking to you for a bit.',4500);setTimeout(()=>{sulk=0},6500);return}
  const d=RP[c.k]||RP.head,L=RL[c.k]||RL.head;react.l=react.l||{};let t;do t=R(L);while(t==react.l[c.k]&&L.length>1);react.l[c.k]=t;
  cur={d:{d:[1.6,1.6],f:d.f,p:d.p,yaw:0},t0:n,end:n+1700,s:c.s,fx:Math.random()<.4?[[1.2,R(FOL),0]]:[]};mode='act';PR.textContent=d.sp||'';kx=-sg*.14;say(t,3200);
  flash=hitMeshes.find(m=>m===c.m);ft=.35};
-const pointer=e=>{if(S.hide||el.hidden||e.target.closest&&e.target.closest('#dhp,#dhb'))return;const r=cv.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return;
+const pointer=e=>{if(S.hide||el.hidden||e.target.closest&&e.target.closest('#dhp,#dhb,#dhc'))return;const r=cv.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return;
  mv.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);rc.setFromCamera(mv,cam);const h=rc.intersectObjects(hitMeshes,false)[0];if(!h)return;
- e.stopImmediatePropagation();e.preventDefault();hitT=Date.now();if(pointer.t&&hitT-pointer.t<350)return;pointer.t=hitT;const c=classify(h);c.m=h.object;react(c,h.point.x)};
+ e.stopImmediatePropagation();e.preventDefault();hitT=Date.now();if(pend||drag||fall)return;px=e.clientX;py=e.clientY;pend={c:Object.assign(classify(h),{m:h.object}),wx:h.point.x,sx:e.clientX,sy:e.clientY}};
 addEventListener('pointerdown',pointer,true);addEventListener('click',e=>{if(Date.now()-hitT<700){e.stopImmediatePropagation();e.preventDefault()}},true);
+addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;if(pend&&!drag&&Math.hypot(e.clientX-pend.sx,e.clientY-pend.sy)>7)beginDrag()},{passive:true});
+const up=()=>{const mine=drag||pend;if(drag)endDrag();else if(pend){const p=pend;pend=null;if(Date.now()-(up.t||0)>350){up.t=Date.now();react(p.c,p.wx)}}pend=null;if(mine)hitT=Date.now()};
+addEventListener('pointerup',up,true);addEventListener('pointercancel',up,true);addEventListener('touchmove',e=>{if(pend||drag)e.preventDefault()},{passive:false});
+/* ---- sound helpers ---- */
+addEventListener('pointerdown',()=>{try{AX=AX||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}},{once:true});
+const tn=(f,d=.12,ty='sine',g=.05,f2)=>{try{if(!AX)return;const t=AX.currentTime,o=AX.createOscillator(),G=AX.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);G.gain.setValueAtTime(g,t);G.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(G);G.connect(AX.destination);o.start(t);o.stop(t+d+.02)}catch(e){}},
+noise=(d=.25,g=.06)=>{try{if(!AX)return;const n=AX.sampleRate*d|0,b=AX.createBuffer(1,n,AX.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const s=AX.createBufferSource(),G=AX.createGain(),fl=AX.createBiquadFilter();fl.type='lowpass';fl.frequency.value=1800;G.gain.value=g;s.buffer=b;s.connect(fl);fl.connect(G);G.connect(AX.destination);s.start()}catch(e){}};
+/* ---- drag, throw and fall physics ---- */
+const maxD=()=>Math.max(0,innerWidth-140),DAZE={yaw:0,f:'ouch',p:t=>({...SIT,sp:[.4,0,0],hd:[.5,sin(t*3)*.2,.2],lS:[-.4,0,.2],lE:[-1.2,0,0],rS:[-.4,0,-.2],rE:[-1.2,0,0]})};
+const dust=n=>{for(let i=0;i<n;i++){const d=document.createElement('i');d.className='dd';d.style.cssText=`left:${50+Math.random()*40}px;--dx:${(Math.random()-.5)*90}px;--dy:${-8-Math.random()*16}px`;el.appendChild(d);setTimeout(()=>d.remove(),700)}};
+const land=sp=>{sq=Math.min(1,sp/1800);dust(sp>380?9:4);tn(120,.2,'sine',Math.min(.14,sp/9000+.03),50);noise(.1,Math.min(.08,sp/12000+.02));if(sp>1100)dazed=1};
+const beginDrag=()=>{afterW=null;cur=null;PR.textContent='';mode='idle';idleEnd=Infinity;drag=1;fall=0;pend=null;hits=[];say(R(['Whoa! Put me down!','Hey! I have a union!','Aaah! I get airsick!']),2200)};
+const endDrag=()=>{drag=0;vx=Math.max(-1500,Math.min(1500,vx));vyy=Math.max(-800,Math.min(1400,vyy));if(yy>4||ab(vx)>250){fall=1;dazed=0}else{yy=0;vx=0;idleEnd=performance.now()+600}};
+function phys(dt,n){const t=n/1e3;let P;
+ if(drag){const k=1-Math.exp(-dt*16),nx=x+(Math.max(0,Math.min(maxD(),px-70))-x)*k,ny=yy+(Math.max(0,innerHeight-py-125)-yy)*k;vx=(nx-x)/dt;vyy=(ny-yy)/dt;x=nx;yy=ny;put();const w=Math.max(-1,Math.min(1,vx/700));
+  P={f:'wow',lS:[0,0,2.3+sin(t*9)*.2],rS:[0,0,-2.3-sin(t*8)*.2],lH:[sin(t*5)*.15,0,w*.4],rH:[-sin(t*5)*.15,0,w*.4],lK:[.25,0,0],rK:[.25,0,0],rz:-w*.35}}
+ else{vyy-=2600*dt;yy+=vyy*dt;x+=vx*dt;vx*=Math.exp(-dt*.6);if(x<0){x=0;vx=ab(vx)*.5}if(x>maxD()){x=maxD();vx=-ab(vx)*.5}
+  P={f:'wow',lS:[0,0,2.6+sin(t*16)*.4],rS:[0,0,-2.6-sin(t*15)*.4],lH:[-.5+sin(t*14)*.5,0,.3],rH:[-.5-sin(t*14)*.5,0,-.3],lK:[.5,0,0],rK:[.5,0,0],sp:[-.2,0,0],rz:vx*.0004};
+  if(yy<=0){yy=0;const sp=-vyy;land(sp);if(sp>380)vyy=sp*.22;else{fall=0;vx=0;vyy=0;if(dazed){dazed=0;cur={d:DAZE,k:'daze',t0:n,end:n+2200,fx:[]};mode='act';PR.textContent='💫';say(R(['Ow… that’s going to leave a mark.','I regret everything. The floor is hard.','Note to self: gravity is real.']),3000)}else idleEnd=n+700}}
+  put()}
+ return P}
+/* ---- fish friends: he walks to the real fish in your aquarium, points, and reacts ---- */
+const AQ=()=>{const g=window.__aqg;if(!g||!g.cv||!g.cv.isConnected||!g.fish)return null;const r=g.cv.getBoundingClientRect();if(r.width<80||r.bottom<40||r.top>innerHeight-40||r.right<0||r.left>innerWidth)return null;const fs=g.fish();return fs&&fs.length?{g,r,fs}:null},
+fpos=(a,f)=>({x:a.r.left+f.x*a.r.width/800,y:a.r.top+f.y*a.r.height/500}),
+fname=f=>{try{return(SP[f.k||0]||SP[0])[0]}catch(e){return'fish'}};
+let lastFV=0;
+const rg=document.createElement('div');rg.id='dhr';rg.hidden=true;document.body.appendChild(rg);
+function visitFish(f,why){const a=AQ();if(!a||sulk||drag||fall||S.hide)return false;
+ if(!f||!a.fs.includes(f)){const hu=a.g.ro?[]:a.fs.filter(q=>q.h<.4);f=R(hu.length?hu:a.fs)}
+ const p=fpos(a,f);cur=null;PR.textContent='';mode='walk';tx=Math.max(8,Math.min(maxX(),p.x-70));afterW=()=>fishAct(f,0,why);return true}
+function fishAct(f,fo,why){const a=AQ();if(!a||!a.fs.includes(f)||sulk||S.hide)return;const n=fname(f),ro=a.g.ro;let k,L;
+ if(!ro&&f.h<.4){k='fhungry';L=['Poor '+n+' is starving! Click the water to drop food.',n+' keeps staring at me. It wants lunch.','Somebody feed this '+n+' before it files a complaint.']}
+ else if(why=='grew'){k='fcheer';L=[n+' just grew! Look at it go!','Level up for the '+n+'! Growing pains, but make it cute.']}
+ else if(f.s==2){k='fcheer';L=['A grown '+n+'! Click its coins before they sink.','Look at that big '+n+'. Handsome.','Big '+n+' energy. Respect.']}
+ else if(f.s==0){k='fbaby';L=['Aww, a baby '+n+'! Keep feeding it so it grows.','Tiny '+n+'. I would defend it with my life. Or my sandwich.']}
+ else{k='fwatch';L=[ro?'Nice '+n+'! This tank looks well cared for.':'Hey, '+n+'! Nice swimming.','That '+n+' is judging my dance moves.','I could watch this '+n+' all day. I basically do.']}
+ lastFV=Date.now();startAct(k,0);cur.fi=f;cur.fo=fo||0;if(!fo)say(R(L),3800);
+ setTimeout(()=>{const b=AQ();if(b&&cur&&cur.fi===f&&b.fs.includes(f)&&k!='fhungry')b.g.px(f.x,f.y-34,'💗')},900)}
+function fishUI(n){if(!(cur&&cur.fi)||drag||fall){rg.hidden=true;return}
+ const a=AQ();if(!a||!a.fs.includes(cur.fi)){rg.hidden=true;if(cur&&cur.fi)cur.end=Math.min(cur.end,n);return}
+ const p=fpos(a,cur.fi),dx=p.x-(x+70);cur.sd=Math.max(-1,Math.min(1,dx/150));rg.style.left=p.x+'px';rg.style.top=p.y+'px';rg.hidden=false;
+ if(ab(dx)>130&&cur.fo<3&&n<cur.end-900){const f=cur.fi,fo=cur.fo+1;cur=null;PR.textContent='';rg.hidden=true;mode='walk';tx=Math.max(8,Math.min(maxX(),p.x-70));afterW=()=>fishAct(f,fo)}}
+window.__dhFish=(ev,f)=>{if(ev!='grew'||S.hide||sulk||drag||fall||Date.now()-lastFV<6000)return;visitFish(f,'grew')};
+setInterval(()=>{if(S.hide||document.hidden||sulk||drag||fall||mode=='walk'||(cur&&cur.fi)||Date.now()-lastFV<45000||Date.now()-lastLine<8000)return;const a=AQ();if(!a||a.g.ro)return;const hu=a.fs.filter(q=>q.h<.25);if(hu.length)visitFish(R(hu),'hungry')},3000);
 /* ---- loop ---- */
 const J0=['sp','hd','lS','lE','rS','rE','lH','lK','rH','rK'],lerp=(a,b,k)=>a+(b-a)*k,wrap=a=>{while(a>PI)a-=2*PI;while(a<-PI)a+=2*PI;return a};
 let last=performance.now(),oy=0,ox=0;
-const tick=n=>{requestAnimationFrame(tick);if(document.hidden||S.hide||n-last<28)return;const dt=Math.min(.1,(n-last)/1e3);last=n;const t=n/1e3;let P={},ty=0;
- if(mode=='idle'&&n>idleEnd)decide(n);
- if(mode=='walk'){const d=tx-x,dir=d>0?1:-1;if(ab(d)<4){mode='idle';idleEnd=n+300;if(Math.random()<.7)startAct(pick())}else{const sp=RM?900:105;x+=dir*Math.min(ab(d),sp*dt);put();ph+=dt*(RM?0:7);ty=dir*PI/2;
+const tick=n=>{requestAnimationFrame(tick);if(document.hidden||S.hide||n-last<28)return;const dt=Math.min(.1,(n-last)/1e3);last=n;const t=n/1e3;let P={},ty=0,PH=null;if(drag||fall)PH=phys(dt,n);
+ if(!PH&&mode=='idle'&&n>idleEnd)decide(n);
+ if(PH){P=PH;if(props){props.rod.visible=false;props.sn.visible=false}}else if(mode=='walk'){const d=tx-x,dir=d>0?1:-1;if(ab(d)<4){mode='idle';idleEnd=n+300;if(afterW){const f=afterW;afterW=null;f()}else if(Math.random()<.7)startAct(pick())}else{const sp=RM?900:105;x+=dir*Math.min(ab(d),sp*dt);put();ph+=dt*(RM?0:7);ty=dir*PI/2;
   const s=sin(ph),c=cos(ph);P={lH:[-s*.6,0,0],rH:[s*.6,0,0],lK:[.7*Math.max(0,c),0,0],rK:[.7*Math.max(0,-c),0,0],lS:[s*.5,0,.06],rS:[-s*.5,0,-.06],lE:[-.3,0,0],rE:[-.3,0,0],sp:[.06,sin(ph)*.1,0],oy:ab(c)*.025,f:'ok'}}}
  else if(cur){const tt=(n-cur.t0)/1e3;P=cur.d.p(tt,cur);ty=cur.d.yaw||0;if(P.yaw!=null)ty=P.yaw;cur.fx.forEach(f=>{if(!f[2]&&tt>=f[0]){f[2]=1;say(f[1],2400)}});if(cur.d.pr!==undefined||props){props.rod.visible=cur.d.pr=='rod';props.sn.visible=cur.d.pr=='sn'}if(n>cur.end)endAct(n)}
  else{P={sp:[sin(t*1.6)*.012,0,0],hd:[0,sin(t*.45)*.55,sin(t*.3)*.04],lS:[0,0,.08],rS:[0,0,-.08],lE:[-.1,0,0],rE:[-.1,0,0],oy:0,rz:sin(t*.6)*.015,f:'ok'};if(props){props.rod.visible=false;props.sn.visible=false}}
- const k=1-Math.exp(-dt*(mode=='walk'?10:13)),z=[0,0,0];J0.forEach(j=>{const g=P[j]||(j=='lS'?[0,0,.06]:j=='rS'?[0,0,-.06]:z),r=J[j].rotation;r.x=lerp(r.x,g[0],k);r.y=lerp(r.y,g[1],k);r.z=lerp(r.z,g[2],k)});
+ lookP(P,dt);const k=1-Math.exp(-dt*(mode=='walk'?10:13)),z=[0,0,0];J0.forEach(j=>{const g=P[j]||(j=='lS'?[0,0,.06]:j=='rS'?[0,0,-.06]:z),r=J[j].rotation;r.x=lerp(r.x,g[0],k);r.y=lerp(r.y,g[1],k);r.z=lerp(r.z,g[2],k)});
  if(P.yaw!=null){yaw=P.yaw}else yaw=wrap(yaw)+wrap(ty-wrap(yaw))*(1-Math.exp(-dt*8));rt.rotation.y=yaw;
- oy=lerp(oy,P.oy||0,k);kx*=Math.exp(-dt*6);rt.position.y=oy;rt.position.x=kx;rt.rotation.z=lerp(rt.rotation.z,(P.rz||0)+kx*.5,k);blob.position.x=kx;blob.scale.setScalar(1+oy*.3);
- const fn=sulk?'grumpy':(P.f||cur&&cur.d.f||'ok');setFace(fn);const bl=(t%4.3)<.12?.1:1;[1,-1].forEach(d=>face['e'+d].scale.y=Math.max(.06,(face.fs||1)*bl));
+ oy=lerp(oy,P.oy||0,k);kx*=Math.exp(-dt*6);rt.position.y=oy;rt.position.x=kx;sq*=Math.exp(-dt*9);rt.scale.set(1+sq*.25,1-sq*.3,1+sq*.25);rt.rotation.z=lerp(rt.rotation.z,(P.rz||0)+kx*.5,k);blob.position.x=kx;blob.scale.setScalar(1+oy*.3);
+ let fn=sulk?'grumpy':(P.f||cur&&cur.d.f||'ok');if(fn=='ok'&&M.f&&Date.now()<M.u)fn=M.f;setFace(fn);lips(t);const bl=(t%4.3)<.12?.1:1;[1,-1].forEach(d=>face['e'+d].scale.y=Math.max(.06,(face.fs||1)*bl));
  if(flash&&ft>0){ft-=dt;flash.material.emissive.setRGB(Math.max(0,ft)*1.6,0,0);if(ft<=0)flash.material.emissive.setRGB(0,0,0)}
- ren.render(sc,cam)};
+ fishUI(n);comp(n,dt);ren.render(sc,cam)};
 /* ---- personality: advice, jokes, facts, scolds, game reactions ---- */
 const QUIP=deck(['Pro tip: hungry fish don’t grow. Click the water to drop food.','Grown fish drop coins. Click them before I “borrow” them.','Aliens! Click them! Your fish can’t do ALL the work.','Practice Mode costs nothing and rewards nothing: perfect for losing with dignity.','Battles: Shell beats Claw, Claw beats Net, Net beats Shell. Even I remember that.','Spend your stars wisely. They’re not decoration.','Peek Pearl before a tough throw. Cheating? No. Strategy.','A well-fed fish is a rich fish.','Why don’t fish play basketball? Afraid of the net.','What do you call a fish with no eyes? A fsh.','I told the fish a joke. It was a bit scaly.','Fun fact: some fish sleep with their eyes open. Like me at work.','Fun fact: a goldfish can remember things for months. Unlike me.','Fun fact: seahorse dads carry the babies. Respect.','Fun fact: pufferfish inflate when scared. Me too, honestly.','The tank looks great. The captain looks tired.','I’d tell you a fishing secret, but you’d need bait to hear it.','Sometimes I stare at the water and think, “Wow. Water.”','If anyone asks, I was working this whole time.','Is it just me, or are the fish judging us?']),
 SCOLD=deck(['Hello? Earth to captain. Your fish are staring at me.','Any day now. Take your time. I’ll just age here.','The fish are bored. I’m bored. The tank is bored.','Did you fall asleep? I’m the one who’s supposed to nap!','Even the seaweed is moving more than you.','I’ve been waiting so long my sandwich went extinct.']);
@@ -1130,17 +1202,116 @@ const rx=t=>{if(/not enough/i.test(t))sayN(()=>Math.random()<.7&&say(R(['Broke a
  else if(/hatch|bought|added|new/i.test(t))sayN(()=>Math.random()<.45&&say(R(['Ooh, shiny! Where do I sign up?','Nice buy. Now feed it!'])))};
 const T0=window.toast;if(typeof T0=='function')window.toast=function(t){const r=T0.apply(this,arguments);try{rx(String(t))}catch(e){}return r};
 ['pointerdown','keydown'].forEach(e=>addEventListener(e,()=>lastIn=Date.now(),{passive:true}));
-setInterval(()=>{if(S.hide||document.hidden||sulk||Date.now()-lastLine<9000)return;if(Date.now()-lastIn>75000){lastIn=Date.now()-30000;mode='idle';cur=null;startAct('wave',0);say(SCOLD(),4200)}else if(Math.random()<.55)say(QUIP(),4600)},21000);
+setInterval(()=>{if(S.hide||CS.pause||!CS.chat||document.hidden||sulk||Date.now()-lastLine<9000)return;if(Date.now()-lastIn>75000){lastIn=Date.now()-30000;mode='idle';cur=null;startAct('wave',0);say(SCOLD(),4200)}else if(Math.random()<.55)say(QUIP(),4600)},21000);
 /* ---- customization + "ask him to…" ---- */
-const bt2=document.createElement('button');bt2.id='dhb';bt2.title='Customize or command your fish handler';bt2.setAttribute('aria-label','Fish handler menu');bt2.textContent='🧑‍🎣';const Pn=document.createElement('div');Pn.id='dhp';Pn.className='card';Pn.hidden=true;document.body.append(bt2,Pn);
+const bt2=document.createElement('button');bt2.id='dhb';bt2.title='Customize or command your fish handler';bt2.setAttribute('aria-label','Fish handler menu');bt2.textContent='🧑‍🎣';const Pn=document.createElement('div');Pn.id='dhp';Pn.className='card';Pn.hidden=true;document.body.append(bt2,Pn);const P1=document.createElement('div'),P2=document.createElement('div');Pn.append(P1,P2);
 const sw=(k,a,l)=>`<div class="r"><span>${l}</span><span class="row">${a.map((c,i)=>`<button class="sw${S[k]==i?' on':''}" data-k="${k}" data-v="${i}" aria-label="${l} ${i+1}" style="background:${c}"></button>`).join('')}</span></div>`,sl=(k,a,l)=>`<div class="r"><label for="dh_${k}">${l}</label><select id="dh_${k}" data-k="${k}">${a.map((c,i)=>`<option value="${i}"${S[k]==i?' selected':''}>${c}</option>`).join('')}</select></div>`;
-const panel=()=>{Pn.innerHTML=`<b>Your fish handler</b><div class="r"><span>Character</span><span class="row"><button class="${S.g=='m'?'on':'ghost'}" data-g="m">Male</button><button class="${S.g=='f'?'on':'ghost'}" data-g="f">Female</button></span></div>${sl('h',HS,'Hairstyle')}${sw('hc',HC,'Hair color')}${sw('sk',SK,'Skin')}${sw('sh',SH,'Outfit')}${sl('ac',AC,'Accessory')}<div class="r"><b>Ask him to…</b></div><div class="ag">${Object.keys(ACT).map(k=>`<button class="ghost" data-a="${k}">${ACT[k].l}</button>`).join('')}</div><div class="r"><label><input type="checkbox" id="dh_hide"${S.hide?' checked':''}> Hide handler</label></div><p class="mut">Looks only. Never changes gameplay. Tap him anywhere on his body to see what happens.</p>`};
-const rb=m=>{save();build();fc='';panel();if(m)say(m,2800)};
-Pn.onclick=e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.g){S.g=t.dataset.g;rb('New me! Do I look more heroic?')}else if(t.dataset.k){S[t.dataset.k]=+t.dataset.v;rb('Fresh look. I approve.')}else if(t.dataset.a&&!sulk&&!S.hide){mode='act';startAct(t.dataset.a,1)}};
-Pn.onchange=e=>{const t=e.target;if(t.id=='dh_hide'){S.hide=t.checked?1:0;el.hidden=!!S.hide;save()}else if(t.dataset.k){S[t.dataset.k]=+t.value;rb('Nice hair day!')}};
+const panel=()=>{const m=S.g=='m',st=Pn.scrollTop;P1.innerHTML=`<b>Your fish handler</b><div class="r"><span>Character</span><span class="row"><button class="${m?'on':'ghost'}" data-g="m">Male</button><button class="${!m?'on':'ghost'}" data-g="f">Female</button></span></div>${sl('h',HS,'Hairstyle')}${sw('hc',HC,'Hair color')}${m?sl('fh',FH,'Facial hair'):''}${sw('sk',SK,'Skin')}${sw('ey',EC,'Eyes')}${sw('sh',SH,'Shirt')}${sw('pc',PC,'Pants')}${sl('ac',AC,'Accessory')}<p class="mut">Changes show instantly, and he turns around to show them off.</p><div class="r"><b>Ask him to…</b></div><div class="ag"><button data-fv="1">🐟 Visit a fish</button>${Object.keys(ACT).filter(k=>!ACT[k].nop).map(k=>`<button class="ghost" data-a="${k}">${ACT[k].l}</button>`).join('')}</div><div class="r"><label><input type="checkbox" id="dh_hide"${S.hide?' checked':''}> Hide handler</label></div><p class="mut">Drag him anywhere and let go. Tap a body part to see him react.</p>`;Pn.scrollTop=st};
+const rb=m=>{save();build();fc='';panel();if(!sulk&&!drag&&!fall){afterW=null;startAct('turn',0);if(m)say(m,2800)}else if(m)say(m,2800)};
+Pn.onclick=e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.c){compClick(t.dataset.c)}else if(t.dataset.g){S.g=t.dataset.g;rb('New me! Do I look more heroic?')}else if(t.dataset.k){S[t.dataset.k]=+t.dataset.v;rb('Fresh look. I approve.')}else if(t.dataset.fv){if(!sulk&&!S.hide&&!drag&&!fall&&!visitFish(null,'menu'))say('I can’t see the aquarium from here. Open the Play screen!',3400)}else if(t.dataset.a&&!sulk&&!S.hide&&!drag&&!fall){afterW=null;startAct(t.dataset.a,1)}};
+Pn.onchange=e=>{const t=e.target;if(t.dataset.cs){setCS(t)}else if(t.id=='dh_hide'){S.hide=t.checked?1:0;el.hidden=!!S.hide;save()}else if(t.dataset.k){S[t.dataset.k]=+t.value;rb('Nice hair day!')}};
 bt2.onclick=()=>{Pn.hidden=!Pn.hidden;if(!Pn.hidden)panel()};
+/* ---- companion brain: mood, memory, conversation, surprises, voice ---- */
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||'null')||d}catch(e){return d}},blank=()=>({n:'',v:0,t:0,c:0,i:0,f:[]});
+const CS=Object.assign({chat:2,sur:2,mv:1,vo:0,pause:0,mem:1},ld('dhcs',{}));
+const saveCS=()=>{try{localStorage.setItem('dhcs',JSON.stringify(CS))}catch(e){}};
+let MEM=CS.mem?Object.assign(blank(),ld('dhmem',{})):blank();const prevT=MEM.t;
+const saveM=()=>{try{CS.mem?localStorage.setItem('dhmem',JSON.stringify(MEM)):localStorage.removeItem('dhmem')}catch(e){}};
+{if(Date.now()-(MEM.t||0)>18e5)MEM.v=(MEM.v||0)+1;MEM.t=Date.now();saveM();setInterval(()=>{MEM.t=Date.now();saveM()},6e4)}
+const fam=()=>MEM.v<2?0:MEM.v<6?1:2,who=()=>MEM.n||'captain',cap=w=>w[0].toUpperCase()+w.slice(1);
+let M={f:'',u:0},ctx={op:null,dc:0,q:null},cdn={},nxt={t:Date.now()+20000,s:Date.now()+45000},zt=1,zs=1,eoy=0,vs=0,lipOn=0,lk={x:0,y:0,w:0},hv=0,camU=0,lastEvt=0,away=0,mi=0,qT=0;
+const mood=(f,ms)=>{M.f=f;M.u=Date.now()+ms},ign=()=>(Date.now()-lastIn)/1e3;
+/* voice */
+const SS=window.speechSynthesis,SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function speak(t){if(!CS.vo||!SS||!t||t.length<3)return;try{SS.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[^\p{L}\p{N}\s.,!?'’-]/gu,'')),vl=SS.getVoices().filter(v=>/^en/i.test(v.lang)),fe=/female|zira|samantha|aria|jenny|susan|karen|moira|hazel|fiona/i,v=vl.find(v=>(S.g=='f')==fe.test(v.name)),f=M.f;if(v)u.voice=v;u.pitch=(S.g=='f'?1.25:.85)+(f=='happy'?.12:f=='sad'?-.12:0);u.rate=f=='angry'||f=='happy'?1.12:f=='sad'||f=='bored'?.88:1;u.onstart=()=>{vs=1};u.onend=u.onerror=()=>{vs=0};SS.speak(u)}catch(e){}}
+function lips(t){if(vs&&face.mo){const o=sin(t*24)>-.2;face.mo.visible=o;face.ml.visible=!o;face.ms.visible=face.mf.visible=false;lipOn=1}else if(lipOn){lipOn=0;fc=''}}
+/* gaze: head and eyes follow the cursor, or look straight at the player */
+function lookP(P,dt){const n=Date.now(),a=cur&&cur.d,cam=n<camU||(a&&a.look=='cam'),on=!drag&&!fall&&!S.hide&&mode!='walk'&&!(cur&&cur.k=='nap'),tr=on&&(!cur||a.look=='cur'||cam);let X=0,Y=0;
+ if(tr&&!cam){X=Math.max(-1,Math.min(1,(px-(x+70))/(innerWidth*.4)));Y=Math.max(-1,Math.min(1,(py-(innerHeight-yy-175))/(innerHeight*.5)))}
+ const k=1-Math.exp(-dt*6);lk.x+=(X-lk.x)*k;lk.y+=(Y-lk.y)*k;lk.w+=((tr?1:0)-lk.w)*k;
+ if(lk.w>.02){const h=P.hd||[0,0,0];P.hd=[h[0]+lk.y*.28*lk.w,(cur?h[1]:h[1]*.2)+lk.x*.6*lk.w,h[2]]}
+ [1,-1].forEach(d=>{const g=face['e'+d];if(g){g.rotation.y=lk.x*.4*lk.w;g.rotation.x=lk.y*.3*lk.w}})}
+/* per-frame: zoom/slide easing, breathing, hover reaction, micro-expressions */
+function comp(n,dt){if(drag||fall||S.hide)zt=1;const a=zs,b=eoy;zs+=(zt-zs)*(1-Math.exp(-dt*7));eoy+=(0-eoy)*(1-Math.exp(-dt*4));if(ab(zs-a)>.002||ab(eoy-b)>.5)put();
+ const br=sin(n/1e3*1.9);J.sp.scale.set(1+br*.008,1+br*.012,1+br*.01);const D=Date.now();
+ if(!drag&&!fall&&!S.hide&&!CS.pause&&mode!='walk'&&Math.hypot(px-(x+70),py-(innerHeight-yy-175))<60){hv+=dt;if(hv>1.5&&D>(cdn.hov||0)){cdn.hov=D+25e3;hv=0;perf('sus',{line:R(['Can I help you? You’re hovering.','Personal space, captain.','Are you reading my face? It’s all there. No secrets.']),m:'smug'})}}else hv=0;
+ if(!cur&&mode=='idle'&&!CS.pause&&D>mi){mi=D+5e3+Math.random()*6e3;mood(R(['curious','happy','smug','bored']),1e3+Math.random()*1200)}}
+/* performance helper: act + optional line, mood, zoom toward screen, slide-in */
+function perf(k,o={}){if(sulk||drag||fall||S.hide)return;if((o.z||o.y)&&!CS.mv)return;afterW=null;lastEvt=Date.now();startAct(k,0);if(o.line)say(o.line,Math.max(3200,o.line.length*75));if(o.m)mood(o.m,5e3);if(o.z)zt=o.z;if(o.y)eoy=o.y;const ms=cur?Math.max(500,cur.end-performance.now()):3e3;setTimeout(()=>{if(o.z)zt=1;if(o.after)o.after()},ms)}
+/* conversation */
+const OP=[{re:/pineapple|pizza/,t:'Pineapple on pizza is correct. Sweet, salty, chaotic. Fight me.',d:['No. You’re wrong. It’s a flavor revolution.','Say that to the pineapple’s face.']},
+{re:/\bcats?\b|\bdogs?\b|\bpets?\b/,t:'Cats. Obviously. They judge silently, like I do.',d:['Dogs drool. Cats have dignity.','Name one dog that has stared at a fish tank this well.']},
+{re:/coffee|\btea\b/,t:'Tea. Coffee is just shouting in liquid form.',d:['Tea is civilization. Coffee is a cry for help.','I run on tea and spite.']},
+{re:/morning|wake up|early/,t:'Mornings are a scam. The fish agree.',d:['Nothing good happens before ten.','Fish don’t even own alarm clocks.']},
+{re:/\bshark/,t:'Sharks are overrated. All teeth, no personality.',d:['A shark has never once made me laugh.','Fine, they’re cool. But overrated!']},
+{re:/sandwich|\bfood\b|lunch/,t:'Sandwiches are the greatest invention. Period.',d:['Two slices of bread, endless possibilities. You can’t beat that.','Argue with a sandwich. I dare you.']}];
+const JOKES=deck(['Why don’t fish like computers? Too many nets.','What do you call a fish wearing a bowtie? Sofishticated.','Why did the fish blush? It saw the ocean’s bottom.','What’s a fish’s favorite instrument? The bass.']),
+SELF=deck(['I wonder if the fish have names for me.','Note to self: sandwiches go in the lunchbox, not the tank.','If I stand very still, I’m basically a statue. A tired statue.','Do fish dream? Do they dream of me? …Weird thought.','Let’s see… fish, water, fish. Yep. Everything’s fine.','I should write a book. “Fifty Shades of Blue.” About the water.']),
+QA=[['Be honest: pineapple on pizza. Yes or no?','pine'],['Cats or dogs?','pets'],['What’s your favorite fish?','fish'],['Tea or coffee?','tea'],['Are you actually enjoying this game?','game']];
+function aQ(k,s){const yes=/\b(yes|yeah|yep|sure|love|like|good)\b/.test(s),no=/\b(no|nope|nah|never|gross|ew|hate)\b/.test(s);
+ if(k=='pine'){if(no){ctx.op=OP[0];ctx.dc=0;return{t:'WRONG. But I’ll allow you to be wrong in peace.',m:'angry'}}return{t:'Finally, someone with taste!',m:'happy'}}
+ if(k=='pets'){ctx.op=OP[1];ctx.dc=0;return /dog/.test(s)?{t:'Dogs. Hm. Bold. Wrong, but bold.',m:'smug'}:{t:'Cats. Correct. I knew I liked you.',m:'happy'}}
+ if(k=='tea'){ctx.op=OP[2];ctx.dc=0;return /coffee/.test(s)?{t:'Coffee. I’m not judging. Loudly.',m:'smug'}:{t:'Tea. Civilized. We’re friends now.',m:'happy'}}
+ if(k=='fish'){const w=(s.match(/[a-z]{3,}/g)||['that one']).pop();if(MEM.f.length<8&&CS.mem){MEM.f.push('favorite fish: '+w);saveM()}return{t:'Ooh, '+w+'. Interesting. I’d have said the koi.',m:'curious'}}
+ if(k=='game')return yes&&!no?{t:'Really? That makes me weirdly proud.',m:'shy'}:{t:'Oh. Ouch. I’ll try to be more entertaining.',m:'sad'};return null}
+function answer(x){const s=x.toLowerCase().trim();let m;
+ if(ctx.q){const k=ctx.q;ctx.q=null;const r=aQ(k,s);if(r)return r}
+ if(m=s.match(/(?:my name is|call me)\s+([a-z]{2,15})/)){const n=cap(m[1]);if(CS.mem){MEM.n=n;saveM();panel2()}return{t:CS.mem?`Nice to meet you, ${n}. I’ll remember that unless you tell me to forget.`:`Nice to meet you, ${n}. Memory is off, so I’ll forget by tomorrow.`,m:'happy'}}
+ if((m=s.match(/\bi (?:really )?(?:like|love|enjoy) ([a-z ]{2,24})/))&&CS.mem&&MEM.f.length<8){MEM.f.push('likes '+m[1].trim());saveM();panel2();return{t:`${cap(m[1].trim())}, huh? Noted. That says a lot about you.`,m:'curious'}}
+ if(ctx.op){if(/\b(no|nope|wrong|disagree|ew|gross|nah|never)\b/.test(s)){if(ctx.dc<2)return{t:ctx.op.d[ctx.dc++],m:'angry'};ctx.op=null;return{t:'Fine. You’re 3% right. Don’t let it go to your head.',m:'smug'}}if(/\b(yes|yeah|agree|right|true|exactly)\b/.test(s)){ctx.op=null;return{t:'See? Finally someone with taste.',m:'happy'}}}
+ if(/\b(bye|goodbye|gtg|see you|leaving)\b/.test(s))return{t:R(['Already? Fine. Go. I’ll be here. Staring at fish.','Bye. Don’t miss me too much.']),m:'sad'};
+ if(/\b(stupid|dumb|ugly|idiot|hate you|useless|annoying|shut up|boring)\b/.test(s)){MEM.i++;saveM();return{t:MEM.i>2?'That’s the third time. I’m keeping a list.':R(['Wow. Rude. I have feelings, you know. Small ones.','Say that again and I’ll tell the fish.']),m:'angry'}}
+ {const o=OP.find(o=>o.re.test(s));if(o){ctx.op=o;ctx.dc=0;return{t:o.t,m:'smug'}}}
+ if(/\b(cute|handsome|pretty|nice|awesome|great|cool|love you|best|smart|funny|good job)\b/.test(s)&&!/\bnot\b/.test(s)){MEM.c++;saveM();return{t:R(['Oh— stop it. I’m not blushing. You’re blushing.','Th-thanks. That was… unexpectedly nice.','I know. But hearing it is nice.']),m:'shy'}}
+ if(/^(hi|hello|hey|yo|good (morning|evening|afternoon))\b/.test(s))return{t:fam()>1?`${who()}! My favorite person to be ignored by.`:R(['Oh, hi. I was just staring at fish. Normal stuff.','Hello! Do you need something, or just company?']),m:'happy'};
+ if(/how are you|how'?s it going|you ok/.test(s))return{t:M.f=='angry'?'Annoyed, since you ask.':M.f=='sad'?'Meh. Fish don’t talk back.':R(['Pretty good! The fish are behaving.','Tired, but in a heroic way.']),m:'ok'};
+ if(/who are you|your name|what are you/.test(s))return{t:'Dockhand. Professional fish watcher, part-time philosopher, full-time snacker.',m:'smug'};
+ if(/joke/.test(s))return{t:JOKES(),m:'happy',a:'laugh'};
+ if(/hungry|feed|food|coin|money|grow|alien|fish/.test(s)){const a=AQ();if(a){const h=a.g.ro?0:a.fs.filter(f=>f.h<.4).length;return{t:h?`${h} of your fish ${h>1?'are':'is'} hungry. Click the water to drop food. Hurry!`:`You have ${a.fs.length} fish and nobody’s starving. Good job. Grown ones drop coins, so click those.`,m:h?'curious':'happy'}}return{t:'Open the Play screen and I’ll tell you who’s hungry.',m:'curious'}}
+ if(s.split(' ').length<=5)for(const k in ACT){if(ACT[k].nop)continue;if(new RegExp('\\b'+k+'\\b').test(s)||s.includes(ACT[k].l.toLowerCase()))return Math.random()<.3?{t:'No. I’m on break. …Okay, fine, ten seconds.',m:'smug',a:k}:{t:R(['Fine. Only because I wanted to.','Watch and learn.']),m:'happy',a:k}}
+ if(s.includes('?')){ctx.q='any';return{t:'Good question. I say YOU answer first. What do you think?',m:'curious'}}
+ const w=(s.match(/[a-z]{4,}/g)||[])[0];return{t:w?R([`“${w}”… I have thoughts. Mostly about fish.`,`Hm. ${cap(w)}. Go on, I’m listening.`,`You and your ${w}. Fascinating.`]):R(['Hmm. Tell me more.','Interesting. I disagree, but interesting.']),m:'curious'}}
+function deliver(r){mood(r.m||'ok',6e3);say(r.t,Math.max(3800,r.t.length*75));const mp={shy:'shy',angry:'mad',sad:'sad',happy:Math.random()<.4?'laugh':0};if(r.a)startAct(r.a,1);else if(mp[r.m]&&mode!='walk'&&!sulk&&!drag)startAct(mp[r.m],0)}
+function talk(x){x=(x||'').trim().slice(0,140);if(!x||S.hide)return;lastIn=Date.now();if(SS&&vs){SS.cancel();vs=0}hideQ();say('…',900,1);setTimeout(()=>deliver(answer(x)),450+Math.random()*450)}
+const qb=document.createElement('div');qb.id='dhc';qb.hidden=true;qb.className='card';qb.innerHTML='<input type="text" id="dhq" maxlength="140" placeholder="Answer him…" aria-label="Reply to the handler"><button data-c="qsend">Send</button><button class="ghost" data-c="qx" aria-label="Close">✕</button>';document.body.appendChild(qb);
+const hideQ=()=>{qb.hidden=true;clearTimeout(qT)},showQ=()=>{qb.hidden=false;clearTimeout(qT);qT=setTimeout(hideQ,3e4)};
+qb.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.c=='qsend'){const i=qb.querySelector('input');talk(i.value);i.value=''}else hideQ()};
+addEventListener('keydown',e=>{if(e.key!='Enter')return;const i=e.target;if(i.id=='dhq'||i.id=='dh_t'){talk(i.value);i.value=''}});
+function compClick(c){if(c=='send'){const i=document.getElementById('dh_t');talk(i.value);i.value=''}
+ else if(c=='mic'){if(!SR){say('My ears don’t work in this browser. Type to me!',3e3);return}try{if(SS&&vs){SS.cancel();vs=0}const r=new SR();r.lang='en-US';r.interimResults=false;r.onresult=e=>talk(e.results[0][0].transcript);r.onerror=()=>say('I couldn’t hear you. Say it again?',2500);r.start();say('I’m listening…',1800)}catch(e){}}
+ else if(c=='forget'){MEM=blank();MEM.v=1;MEM.t=Date.now();saveM();panel2();say('Who are you again? …Kidding. I forgot everything, as requested.',3500)}}
+function setCS(t){const k=t.dataset.cs;CS[k]=t.type=='checkbox'?+t.checked:+t.value;saveCS();if(k=='mem'){if(!CS.mem)MEM=blank();else MEM=Object.assign(blank(),ld('dhmem',{}));saveM();panel2()}if(k=='vo'){if(!CS.vo&&SS)SS.cancel();else say('Can you hear me?',2200)}}
+const panel2=()=>{const o=(k,a)=>`<select data-cs="${k}" aria-label="${k}">${a.map((l,i)=>`<option value="${i}"${CS[k]==i?' selected':''}>${l}</option>`).join('')}</select>`,c=(k,l)=>`<label><input type="checkbox" data-cs="${k}"${CS[k]?' checked':''}> ${l}</label>`,mem=CS.mem?((MEM.n?'name: '+esc(MEM.n)+'; ':'')+(MEM.f.length?esc(MEM.f.join(', '))+'; ':'')+MEM.v+' visit(s) on this device'):'nothing (memory is off)';
+ P2.innerHTML=`<hr><b>Talk to him</b><div class="row"><input type="text" id="dh_t" maxlength="140" placeholder="Say something…" aria-label="Talk to the handler"><button data-c="send">Send</button><button class="ghost" data-c="mic" aria-label="Speak">🎤</button></div><div class="r"><b>Companion settings</b></div><div class="r"><span>Chat</span>${o('chat',['Off','Rare','Normal','Chatty'])}</div><div class="r"><span>Surprises</span>${o('sur',['Off','Rare','Normal','Lots'])}</div><div class="r">${c('mv','Move around the screen')}</div><div class="r">${c('vo','Voice (speaks aloud)')}</div><div class="r">${c('pause','Pause his own behavior')}</div><div class="r">${c('mem','Remember me on this device')}</div><p class="mut">He remembers: ${mem}</p><button class="ghost" data-c="forget">Forget everything</button>`};
+/* independent behaviour director: picks talk/surprise events with weights, cooldowns and settings */
+function ask(){const q=R(QA);ctx.q=q[1];say(q[0],6e3);mood('curious',5e3);showQ()}
+function gameC(){const a=AQ();if(!a)return say(R(['The tank is quiet. Too quiet.','Open the Play screen. I miss my fish.']),3500);const g=a.fs.filter(f=>f.s==2).length;say(R([`${a.fs.length} fish, ${g} fully grown. Not bad, ${who()}.`,'I’m pretty sure that one is judging me.','Look at them go. I’m not jealous. Much.']),4e3)}
+const EVT=[
+['stare','s',3,50,()=>perf('stare',{m:'curious',after:()=>say(R(['…Nothing. Carry on.','Sorry. Thought I saw you blink.','You’re very quiet. I respect it.']),2800)})],
+['glance','s',3,35,()=>{camU=Date.now()+1500;lastEvt=Date.now()}],
+['inspect','s',3,70,()=>perf('lean',{z:1.7,m:'curious',line:R(['Hmm… are you real?','Let me get a closer look at you.','Is there somebody in there?'])}),1],
+['knock','s',2,90,()=>{perf('knock',{z:1.45,line:'Knock knock… anybody home?'});[400,850,1300].forEach(d=>setTimeout(()=>tn(150,.1,'square',.06,80),d))},1],
+['peek','s',2,80,()=>perf('jumpx',{y:270,line:R(['Boo! …Did I scare you?','Peekaboo!','Surprise! I live here.']),m:'happy'}),1],
+['shock','s',2,100,()=>perf('shock',{z:.78,m:'wow',line:R(['Whoa! Did you see that?!','Did something just move?!','I heard a noise!'])}),1],
+['sus','s',2,80,()=>perf('sus',{m:'smug',line:R(['You’ve been very quiet… suspicious.','What are you plotting?','I’m watching you. Casually.'])})],
+['jump','s',2,80,()=>perf('jumpx',{z:1.5,m:'happy',line:R(['Ooh! Ooh! Look at this!','This is great!','I’m so excited I forgot why!'])}),1],
+['ask','t',3,60,ask],['self','t',3,40,()=>{say(SELF(),4200);lastEvt=Date.now()}],
+['laugh','t',2,70,()=>perf('laugh',{m:'happy',line:R(['Hahaha— sorry. I remembered something.','Heh. A fish did something silly. I think.','Ha! Okay, I’m fine. I’m fine.'])})],
+['game','t',3,45,()=>{gameC();lastEvt=Date.now()}],
+['nap','t',1,120,()=>{startAct('nap',1);lastEvt=Date.now();setTimeout(()=>{if(cur&&cur.k=='nap'){cur.end=performance.now();say('I wasn’t sleeping! I was… resting my eyes.',3e3)}},4500)}],
+['hi','t',2,120,()=>{say(`Hey ${who()}, still here? Good.`,3e3);lastEvt=Date.now()},0,g=>MEM.n&&CS.mem],
+['ign','t',6,40,()=>perf('mad',{m:'angry',line:R(['Hello?! I exist, you know.','You’ve ignored me for a whole minute. A MINUTE.','Fine. Ignore me. See if I care. (I care.)'])}),0,g=>g>50],
+['bore','t',4,90,()=>{startAct('rest',0);mood('bored',6e3);say(R(['I’m bored. Entertain me.','*sigh* Do something. Anything.']),3500);lastEvt=Date.now()},0,g=>g>30],
+['attn','t',3,60,()=>{cur=null;mode='walk';tx=Math.max(8,Math.min(maxX(),px-70));afterW=()=>perf('wave',{line:'Over here! Pay attention to me.'});lastEvt=Date.now()},0,g=>g>40]];
+function brain(){if(CS.pause||S.hide||document.hidden||sulk||drag||fall||mode=='walk'||(cur&&cur.fi)||vs)return;const n=Date.now(),gap={t:[1e9,95,50,24],s:[1e9,150,80,40]};
+ for(const c of ['t','s']){if(n<nxt[c])continue;const g=gap[c][CS[c=='t'?'chat':'sur']]*1e3;nxt[c]=n+Math.min(g,36e5)*(.6+Math.random()*.8);if(g>=1e9||n-lastEvt<6e3||(c=='s'&&n-lastIn<5e3))continue;
+  const ig=ign(),pool=EVT.filter(e=>e[1]==c&&n>(cdn[e[0]]||0)&&(!e[6]||e[6](ig))&&(!e[5]||CS.mv)),tot=pool.reduce((a,e)=>a+e[2],0);if(!tot)continue;let r=Math.random()*tot,ev=pool.find(e=>(r-=e[2])<=0)||pool[0];cdn[ev[0]]=n+ev[3]*1e3;ev[4]();break}}
+setInterval(brain,1500);
+function greet(){const d=prevT?Math.floor((Date.now()-prevT)/864e5):0;let t='Name’s Dockhand. I watch the fish. Poke me and regret it.';if(MEM.v>1)t=MEM.n?(d>=1?`${MEM.n}! It’s been ${d} day${d>1?'s':''}. I almost forgot your face.`:`Welcome back, ${MEM.n}.`):(fam()>1?'Oh, it’s you again. Good. The fish missed you.':'Oh, you’re back. I remember the poking.');say(t,4800)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)away=Date.now();else if(away&&Date.now()-away>45e3&&!S.hide&&!CS.pause){say(R([`Oh, you’re back${MEM.n?', '+MEM.n:''}. I wasn’t waiting. Much.`,'There you are! The fish and I had a meeting about you.']),4e3);mood('happy',4e3)}if(!document.hidden)away=0});
+panel2();
 addEventListener('resize',()=>{x=Math.min(x,maxX());put()});
-build();panel();el.hidden=!!S.hide;put();setFace('ok');requestAnimationFrame(tick);setTimeout(()=>say('Name’s Dockhand. I watch the fish. Poke me and regret it.',4500),1500)};
+build();panel();el.hidden=!!S.hide;put();setFace('ok');requestAnimationFrame(tick);setTimeout(greet,1500)};
 if(window.THREE)boot();else{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=boot;s.onerror=()=>console.warn('Dockhand needs three.js from cdnjs');document.head.appendChild(s)}
 })();
 </script>
